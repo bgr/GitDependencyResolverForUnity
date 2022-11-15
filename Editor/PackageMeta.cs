@@ -176,6 +176,10 @@ namespace Coffee.GitDependencyResolver
 
         public static PackageMeta FromPackageDir(string dir)
         {
+            // relative paths are resolved by Unity Package Manager relative to Packages dir,
+            // next line makes sure that GitDependencyResolver matches that behavior
+            if (dir.StartsWith("..")) dir = "./Packages/" + dir;
+
             var package = FromPackageJson(dir + "/package.json");
             if (package == null) return null;
 
@@ -190,7 +194,7 @@ namespace Coffee.GitDependencyResolver
             // Local file package.
             Match f = s_IsFileReg.Match(url);
             if (f.Success) {
-                string path = f.Groups["path"].Value; // Absolute path to package
+                string path = f.Groups["path"].Value; // Absolute or relative path to package
                 return FromPackageDir(path); // Treat the package from its package dir
             }
 
